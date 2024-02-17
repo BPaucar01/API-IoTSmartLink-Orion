@@ -1,0 +1,1412 @@
+openapi: 3.1.0
+info:
+  title: API IoTSmartLink-Orion - OpenAPI 3.1
+  description: |-
+    Esta es la versión 1.0.0 del desarrollo del API IoTSmartLink-Orion destinada al control y monitoreo de la temperatura y humedad de los refrigeradores o congeladores dentro de un laboratorico clínico. Esta API permite obtener y guardar las mediciones capturadas por una red de dispositivos IoT y observar las condiciones internas de estos congeladores y refrigeradores.
+
+  version: 1.0.0
+  
+servers:
+  - url: https://iotsmartlink-orion.swagger.io/api/v3
+tags:
+  - name: medición
+    description: Operaciones para las mediciones
+  - name: gateway
+    description: Operaciones para el gateway presente dentro del laboratorio
+  - name: dispositivoIoT
+    description: Operaciones para los dispositivos IoT
+  - name: contenedor
+    description: Operaciones para los contendores
+  - name: umbral
+    description: Operaciones sobre el umbral de las mediciones
+  - name: usuario
+    description: Operaciones para el usuario
+  - name: tipo_medicion
+    description: Operaciones para los tipos de mediciones
+  - name: tipo_contenedor
+    description: Operaciones para los tipos de contenedores
+paths:
+  /mediciones:
+    get:
+      tags:
+        - medición
+      summary: Obtener todas la mediciones
+      description: Se obtienen todas la mediciones de los dispositivos IoT asociados a una sucursal de un laboratorio clínico
+      operationId: obtenerTodasMediciones
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Medicion'
+        '401':
+          description: No autorizado
+        '404':
+          description: Mediciones no encontradas
+        '400':
+          description: Operación fallida
+        '403':
+          description: No autorizado
+      security:
+        - api_key: []
+    post:
+      tags:
+        - medición
+      summary: Crear una nueva medición
+      description: Crear una nueva medición para un dispositivo IoT y con un tipo de medición
+      operationId: crearMedicion
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+      requestBody:
+        description: Crear una medición de un dispositivo con un tipo de medición
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearMedicion'
+        required: true
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Medicion'
+        '401':
+          description: No autorizado
+        '404':
+          description: Mediciones no encontradas
+        '503':
+          description: Error en el servidor
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /mediciones/{fecha_creacion}:
+    get:
+      tags:
+        - medición
+      summary: Obtener todas las mediciones de una fecha
+      description: Se obtienen las mediciones de un día de los dispositivos IoT asociados a una sucursal de un laboratorio clínico
+      operationId: obtenerMedicionesPorFecha
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: fecha_creacion
+          in: path
+          description: Fecha de registro de las mediciones (yyyy-mm-dd)
+          required: true
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Medicion'
+        '401':
+          description: No autorizado
+        '404':
+          description: Mediciones no encontradas
+        '503':
+          description: Error en el servidor
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /gateway:
+    get:
+      tags:
+        - gateway
+      summary: Obtener los Gateways LoRaWAN
+      description: Se obtienen todos los gateways LoRaWAN de una sucursal de un laboratorio clínico
+      operationId: obtenerGateways
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerGateway'
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    post:
+      tags:
+        - gateway
+      summary: Crear un Gateway LoRaWAN
+      description: Crear Gateway LoRaWAN para una sucursal de un laboratorio clínico
+      operationId: crearGateway
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+      requestBody:
+        description: Crear un Gateway LoRaWAN para una sucursal de un laboratorio clínico
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearGateway'
+        required: true
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerGateway'
+        '401':
+          description: No autorizado
+        '503':
+          description: Error en el servidor
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /gateway/{idGateway}:
+    get:
+      tags:
+        - gateway
+      summary: Obtener los Gateway LoRaWAN por id
+      description: Se obtienen un Gateways LoRaWAN por id de una sucursal de un laboratorio clínico
+      operationId: obtenerGatewayPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: false
+          schema:
+            type: string
+        - name: idGateway
+          in: path
+          description: IdGateway necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerGateway'
+        '401':
+          description: No autorizado
+        '404':
+          description: Gateway no encontrado
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    put:
+      tags:
+        - gateway
+      summary: Updates a pet in the store with form data
+      description: ''
+      operationId: actualizarGatewayPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idGateway
+          in: path
+          description: IdGateway necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Actualizar un Gateway por id
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarGateway'
+      responses:
+        '405':
+          description: Valores inválidos
+        '401':
+          description: No autorizado
+        '404':
+          description: Gateway no encontrado
+        '400':
+          description: Operación fallida
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerGateway'
+      security:
+        - api_key: []
+    delete:
+      tags:
+        - gateway
+      summary: Eliminar Gateway LoRaWAN
+      description: Eliminar Gateway LoRaWAN de una sucursal de un laboratorio clínico
+      operationId: eliminarGateway
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idGateway
+          in: path
+          description: idGateway LoRaWAN para eliminar 
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Operación exitosa
+        '401':
+          description: No autorizado
+        '404':
+          description: Gateway no encontrado
+        '500':
+          description: Error interno del servidor
+        '400':
+          description: Invalid pet value
+      security:
+        - api_key: []
+  /dispositivoiot:
+    get:
+      tags:
+        - dispositivoIoT
+      summary: Obtener los dispositivos IoT
+      description: Se obtienen todos los dispositivos IoT de una sucursal de un laboratorio clínico
+      operationId: obtenerDispositivosIoT
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerDispositivoIoT'
+        '401':
+          description: No autorizado
+        '404':
+          description: Dispositivos IoT no encontrados
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    post:
+      tags:
+        - dispositivoIoT
+      summary: Crear un Dispositivo IoT
+      description: Crear un Dispositivo IoT para una sucursal de un laboratorio clínico
+      operationId: crearDispositivoIoT
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Crear un Dispositivo IoT para una sucursal de un laboratorio clínico
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearDispositivoIoT'
+        required: true
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerDispositivoIoT'
+        '401':
+          description: No autorizado
+        '503':
+          description: Error en el servidor
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /dispositivoiot/{idDispositivoIoT}:
+    get:
+      tags:
+        - dispositivoIoT
+      summary: Obtener los Dispositivos IoT por idDispositivoIoT
+      description: Se obtienen un Dispositivo IoT por idDispositivoIoT de una sucursal de un laboratorio clínico
+      operationId: obtenerDispositivoIoTPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idDispositivoIoT
+          in: path
+          description: IdDispositivoIoT necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerDispositivoIoT'
+        '401':
+          description: No autorizado
+        '404':
+          description: Dispositivo IoT no encontrado
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    put:
+      tags:
+        - dispositivoIoT
+      summary: Actualizar un Dispositivo IoT
+      description: Actualizar un Dispositivo IoT para una sucursal de un laboratorio clínico
+      operationId: actualizarDispositivoIoTPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idDispositivoIoT
+          in: path
+          description: IdDispositivoIoT necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Actualizar un Dispositivo IoT para una sucursal de un laboratorio clínico
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarDispositivoIoT'
+        required: true
+      responses:
+        '405':
+          description: Valores inválidos
+        '401':
+          description: No autorizado
+        '404':
+          description: Dispositivo IoT no encontrado
+        '400':
+          description: Operación fallida
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerDispositivoIoT'
+      security:
+        - api_key: []
+    delete:
+      tags:
+        - dispositivoIoT
+      summary: Eliminar Dispositivo IoT
+      description: Eliminar Dispositivo IoT de una sucursal de un laboratorio clínico
+      operationId: eliminarDispositivoIoT
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idDispositivoIoT
+          in: path
+          description: idDispositivoIoT para eliminar 
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Operación exitosa
+        '401':
+          description: No autorizado
+        '404':
+          description: Dispositivo IoT no encontrado
+        '500':
+          description: Error interno del servidor
+        '400':
+          description: Invalid pet value
+      security:
+        - api_key: []
+  /contenedor:
+    get:
+      tags:
+        - contenedor
+      summary: Obtener los Contenedores
+      description: Se obtienen todos los contenedores de una sucursal de un laboratorio clínico
+      operationId: obtenerContenedores
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerContenedor'
+        '401':
+          description: No autorizado
+        '404':
+          description: Contenedores no encontrados
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    post:
+      tags:
+        - contenedor
+      summary: Crear un Contenedor
+      description: Crear un Contenedor para una sucursal de un laboratorio clínico
+      operationId: crearContenedor
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Crear un Contenedor para una sucursal de un laboratorio clínico
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearContenedor'
+        required: true
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerContenedor'
+        '401':
+          description: No autorizado
+        '503':
+          description: Error en el servidor
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /contenedor/{idContenedor}:
+    get:
+      tags:
+        - contenedor
+      summary: Obtener los Contenedores por idContenedor
+      description: Se obtienen un Contenedor por idContenedor de una sucursal de un laboratorio clínico
+      operationId: obtenerContenedorPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idContenedor
+          in: path
+          description: IdContenedor necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerContenedor'
+        '401':
+          description: No autorizado
+        '404':
+          description: Contenedor no encontrado
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    put:
+      tags:
+        - contenedor
+      summary: Actualizar un Contenedor
+      description: Actualizar un Contenedor para una sucursal de un laboratorio clínico
+      operationId: actualizarContenedorPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idContenedor
+          in: path
+          description: IdContenedor necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Actualizar un Contenedor para una sucursal de un laboratorio clínico
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarContenedor'
+        required: true
+      responses:
+        '405':
+          description: Valores inválidos
+        '401':
+          description: No autorizado
+        '404':
+          description: Contenedor no encontrado
+        '400':
+          description: Operación fallida
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerContenedor'
+      security:
+        - api_key: []
+    delete:
+      tags:
+        - contenedor
+      summary: Eliminar Contenedor
+      description: Eliminar Contenedor de una sucursal de un laboratorio clínico
+      operationId: eliminarContenedor
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idContenedor
+          in: path
+          description: idContenedor para eliminar 
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Operación exitosa
+        '401':
+          description: No autorizado
+        '404':
+          description: Contenedor no encontrado
+        '500':
+          description: Error interno del servidor
+        '400':
+          description: Invalid pet value
+      security:
+        - api_key: []
+  /umbral:
+    get:
+      tags:
+        - umbral
+      summary: Obtener los Umbrales
+      description: Se obtienen todos los umbrales de una sucursal de un laboratorio clínico
+      operationId: obtenerUmbrales
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerUmbral'
+        '401':
+          description: No autorizado
+        '404':
+          description: Umbrales no encontrados
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    post:
+      tags:
+        - umbral
+      summary: Crear un Umbral
+      description: Crear un Umbral para una sucursal de un laboratorio clínico
+      operationId: crearUmbral
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Crear un Umbral para una sucursal de un laboratorio clínico
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrearUmbral'
+        required: true
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerUmbral'
+        '401':
+          description: No autorizado
+        '503':
+          description: Error en el servidor
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /umbral/{idUmbral}:
+    get:
+      tags:
+        - umbral
+      summary: Obtener los Umbrales por idUmbral
+      description: Se obtienen un Umbral por idUmbral de una sucursal de un laboratorio clínico
+      operationId: obtenerUmbralPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idUmbral
+          in: path
+          description: IdUmbral necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerUmbral'
+        '401':
+          description: No autorizado
+        '404':
+          description: Umbral no encontrado
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+    put:
+      tags:
+        - umbral
+      summary: Actualizar un Umbral
+      description: Actualizar un Umbral para una sucursal de un laboratorio clínico
+      operationId: actualizarUmbralPorId
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idUmbral
+          in: path
+          description: IdUmbral necesario para la actualización
+          required: true
+          schema:
+            type: integer
+            format: int32
+      requestBody:
+        description: Actualizar un Umbral para una sucursal de un laboratorio clínico
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActualizarUmbral'
+        required: true
+      responses:
+        '405':
+          description: Valores inválidos
+        '401':
+          description: No autorizado
+        '404':
+          description: Umbral no encontrado
+        '400':
+          description: Operación fallida
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerUmbral'
+      security:
+        - api_key: []
+    delete:
+      tags:
+        - umbral
+      summary: Eliminar Umbral 
+      description: Elimina un umbral de un contenedor de una sucursal laboratorio clínico
+      operationId: eliminarUmbral
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+        - name: idUmbral
+          in: path
+          description: idUmbral para eliminar 
+          required: true
+          schema:
+            type: integer
+            format: int64  
+      responses:
+        '200':
+          description: Se elimino el umbral
+        '401':
+          description: No autorizado
+        '404':
+          description: Umbral no encontrado
+        '500':
+          description: Error interno del servidor
+        '400':
+          description: Invalid pet value
+      security:
+        - api_key: []
+  /tipoMedicion:
+    get:
+      tags:
+        - tipo_medicion
+      summary: Obtener los Tipos de Contenedores
+      description: Se obtienen todos los tipos de contenedores de una sucursal de un laboratorio clínico
+      operationId: obtenerTiposContenedores
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerTipoMedicion'
+        '401':
+          description: No autorizado
+        '404':
+          description: Tipos de contenedores no encontrados
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /tipoContenedor:
+    get:
+      tags:
+        - tipo_contenedor
+      summary: Obtener los Tipos de Contenedores
+      description: Se obtienen todos los tipos de contenedores de una sucursal de un laboratorio clínico
+      operationId: obtenerTiposContenedores
+      parameters:
+        - name: api_key
+          in: header
+          description: ''
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/ObtenerTipoContenedor'
+        '401':
+          description: No autorizado
+        '404':
+          description: Tipos de contenedores no encontrados
+        '400':
+          description: Operación fallida
+      security:
+        - api_key: []
+  /loginUsuario:
+    post:
+      tags:
+        - usuario
+      summary: Iniciar sesión
+      description: Iniciar sesión en el sistema
+      operationId: iniciarSesion
+      requestBody:
+        description: Iniciar sesión en el sistema
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Usuario'
+        required: true
+      responses:
+        '200':
+          description: Operación exitosa
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginUsuario'
+        '401':
+          description: No autorizado
+        '503':
+          description: Error en el servidor
+        '400':
+          description: Operación fallida
+components:
+  schemas:
+    ObtenerTipoContenedor:
+      type: object
+      properties:
+        idTipoContenedor:
+          type: integer
+          format: int32
+          example: 1
+        tipo:
+          type: string
+          example: "Refrigerador"
+        fecha_creacion:
+          type: string
+          format: date-time
+        fecha_actualizacion:
+          type: string
+          format: date-time
+      xml:
+        name: obtener_tipocontenedor
+    ActualizarUmbral:
+      type: object
+      properties:
+        idTipoMedicion:
+          type: integer
+          format: int32
+          example: 1
+        valorMinimo:
+          type: number
+          format: float
+          example: 2.5
+        valorMaximo:
+          type: number
+          format: float
+          example: 5.5
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: actualizar_umbral
+    CrearUmbral:
+      type: object
+      properties:
+        idTipoMedicion:
+          type: integer
+          format: int32
+          example: 1
+        valorMinimo:
+          type: number
+          format: float
+          example: 2.5
+        valorMaximo:
+          type: number
+          format: float
+          example: 5.5
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: crear_umbral
+    ObtenerUmbral:
+      type: object
+      properties:
+        idUmbral:
+          type: integer
+          format: int32
+          example: 1
+        idTipoMedicion:
+          type: integer
+          format: int32
+          example: 1
+        valorMinimo:
+          type: number
+          format: float
+          example: 2.5
+        valorMaximo:
+          type: number
+          format: float
+          example: 5.5
+        fecha_creacion:
+          type: string
+          format: date-time
+        fecha_actualizacion:
+          type: string
+          format: date-time
+      xml:
+        name: obtener_umbral
+    ActualizarContenedor:
+      type: object
+      properties:
+        idContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        idTipoContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idUmbral:
+          type: integer
+          format: int32
+          example: 1
+        codigo:
+          type: string
+          example: "A11"
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: actualizar_contenedor
+    CrearContenedor:
+      type: object
+      properties:
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        idTipoContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idUmbral:
+          type: integer
+          format: int32
+          example: 1
+        codigo:
+          type: string
+          example: "A11"
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: crear_contenedor
+    ObtenerContenedor:
+      type: object
+      properties:
+        idContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        idTipoContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idUmbral:
+          type: integer
+          format: int32
+          example: 1
+        codigo:
+          type: string
+          example: "A11"
+        fecha_creacion:
+          type: string
+          format: date-time
+        fecha_actualizacion:
+          type: string
+          format: date-time
+      xml:
+        name: obtener_contenedor
+    ActualizarDispositivoIoT:
+      type: object
+      properties:
+        idContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idGateway:
+          type: integer
+          format: int32
+          example: 1
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        modelo:
+          type: string
+          example: "463483ef237273er"
+        devEUI:
+          type: string
+          example: "24c453e5612834834"
+        numeroSerie:
+          type: string
+          example: "24c453e5612834834A12324"
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: actualizar_dispositivoiot
+    CrearDispositivoIoT:
+      type: object
+      properties:
+        idContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idGateway:
+          type: integer
+          format: int32
+          example: 1
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        modelo:
+          type: string
+          example: "463483ef237273er"
+        devEUI:
+          type: string
+          example: "24c453e5612834834"
+        numeroSerie:
+          type: string
+          example: "24c453e5612834834A12324"
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: crear_dispositivoiot
+    ObtenerDispositivoIoT:
+      type: object
+      properties:
+        idDispositivoIoT:
+          type: integer
+          format: int32
+          example: 1
+        idContenedor:
+          type: integer
+          format: int32
+          example: 1
+        idGateway:
+          type: integer
+          format: int32
+          example: 1
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        modelo:
+          type: string
+          example: "463483ef237273er"
+        devEUI:
+          type: string
+          example: "24c453e5612834834"
+        numeroSerie:
+          type: string
+          example: "24c453e5612834834A12324"
+        fecha_creacion:
+          type: string
+          format: date-time
+        fecha_actualizacion:
+          type: string
+          format: date-time
+      xml:
+        name: obtener_dispositivoiot
+    ActualizarGateway:
+      type: object
+      properties:
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        modelo: 
+          type: string
+          example: "24e4567c450"
+        nombre:
+          typer: string
+          example: "Gateway 1"
+        direccionMAC:
+          type: string
+          example: "24c453e561"
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: actualizar_gateway
+    CrearGateway:
+      type: object
+      properties:
+        idGateway: 
+          type: integer
+          format: int32
+          example: 1
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        modelo: 
+          type: string
+          example: "24e4567c450"
+        nombre:
+          typer: string
+          example: "Gateway 1"
+        direccionMAC:
+          type: string
+          example: "24c453e561"
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: crear_gateway
+    ObtenerGateway:
+      type: object
+      properties:
+        idGateway: 
+          type: integer
+          format: int32
+          example: 1
+        idSucursal:
+          type: integer
+          format: int32
+          example: 1
+        modelo: 
+          type: string
+          example: "24e4567c450"
+        nombre:
+          typer: string
+          example: "Gateway 1"
+        direccionMAC:
+          type: string
+          example: "24c453e561"
+        fecha_creacion:
+          type: string
+          format: date-time
+        fecha_actualizacion:
+          type: string
+          format: date-time
+      xml:
+        name: obtener_gateway
+    Medicion:
+      type: object
+      properties:
+        idMedicion:
+          type: integer
+          format: int32
+          example: 1
+        idTipoMedicion:
+          type: integer
+          format: int32
+          example: 1
+        idDispositivoIoT:
+          type: integer
+          format: int32
+          example: 1
+        valorMedicion:
+          type: number
+          format: float
+          example: 27.3
+        estado:
+          type: string
+          example: normal
+        fecha_creacion:
+          type: string
+          format: date-time
+        fecha_actualizacion:
+          type: string
+          format: date-time
+      xml:
+        name: medicion
+    CrearMedicion:
+      type: object
+      properties:
+        idTipoMedicion:
+          type: integer
+          format: int32
+          example: 1
+        idDispositivoIoT:
+          type: integer
+          format: int32
+          example: 1
+        valorMedicion:
+          type: number
+          format: float
+          example: 27.3
+        estado:
+          type: string
+          example: normal
+        fecha:
+          type: string
+          format: date-time
+      xml:
+        name: crear_medicion
+    ObtenerTipoMedicion:
+      type: object
+      properties:
+        idTipoMedicion:
+          typer: integer
+          format: int32
+          example: 1
+        nombre: 
+          type: string
+          example: "Temperatura"
+        unidad:
+          type: string
+          example: "Centígrados"
+        fecha_creacion:
+          type: string
+          format: date-time
+        fecha_actualizacion:
+          type: string
+          format: date-time
+      xml:
+        name: tipo_medicion
+    Usuario:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "user"
+        password:
+          type: string
+          example: "12345"
+      xml:
+        name: login_usuario
+    LoginUsuario:
+      type: object
+      properties:
+        Token:
+        type: string
+        description: Token de acceso a la API.
+        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIiwibmFtZSI6InVzZXIiLCJpYXQiOjE1MTYyMzkwMjJ9.5"
+        username:
+          type: string
+          example: "user"
+        password:
+          type: string
+          example: "12345"
+      xml:
+        name: login_usuario
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
